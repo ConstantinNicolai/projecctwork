@@ -1,0 +1,10 @@
+csg-headnode.ziti.uni-heidelberg.de
+
+login kx225
+uni pw
+
+spack package manager
+
+conda enviroment eml
+
+nvidia smi tool ?
