@@ -2,7 +2,6 @@
 #SBATCH --partition=brook
 #SBATCH --job-name=read_gpu_stats
 #SBATCH --output=gpu_stats_%j.out
-#SBATCH --error=gpu_stats_%j.err
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:1
@@ -24,3 +23,5 @@ read_gpu_model
 
 # Run nvidia-smi continuously
 nvidia-smi -lms=1 --query-gpu=timestamp,utilization.gpu,power.draw --format=csv,noheader,nounits
+
+sleep 0.01
