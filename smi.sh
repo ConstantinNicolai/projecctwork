@@ -24,4 +24,4 @@ read_gpu_model
 # Run nvidia-smi continuously
 nvidia-smi -lms=1 --query-gpu=timestamp,utilization.gpu,power.draw --format=csv,noheader,nounits
 
-sleep 0.01
+usleep 20000
