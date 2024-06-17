@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --partition=brook
 #SBATCH --job-name=read_gpu_stats
-#SBATCH --output=resnet101_%j.out
+#SBATCH --output=resnetmulti_%j.out
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:2
 
 # Check if Nvidia SMI is installed
-python3 resnet101.py
+python3 resnet_multi.py
