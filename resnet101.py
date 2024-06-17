@@ -35,10 +35,12 @@ test_dataset = torchvision.datasets.CIFAR10(root='./data', train=False, download
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
 # Load the pre-trained ResNet-101 model and modify the final layer
-model = models.resnet101(pretrained=True)
+model = models.resnet101
 num_ftrs = model.fc.in_features
 model.fc = nn.Linear(num_ftrs, 10)  # CIFAR-10 has 10 classes
 model = model.to(device)
+
+print("some print after loading the dataset")
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
@@ -63,11 +65,13 @@ def train_model(model, criterion, optimizer, num_epochs):
             optimizer.step()
             
             running_loss += loss.item()
-            if (i + 1) % 100 == 0:
+            if (i + 1) % 10 == 0:  # Print more frequently for debugging
                 print(f'Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}')
         
+        print(f'Epoch [{epoch+1}/{num_epochs}] completed with average loss: {running_loss/len(train_loader):.4f}')
+        
         # Save the model checkpoint
-        torch.save(model.state_dict(), 'resnet101_cifar10.pth')
+        torch.save(model.state_dict(), f'resnet101_cifar10_epoch_{epoch+1}.pth')
 
 # Function to test the model
 def test_model(model):
@@ -82,8 +86,15 @@ def test_model(model):
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-        print(f'Accuracy of the model on the test images: {100 * correct / total} %')
+        print(f'Accuracy of the model on the test images: {100 * correct / total:.2f} %')
 
 # Train and test the model
-train_model(model, criterion, optimizer, num_epochs)
-test_model(model)
+try:
+    train_model(model, criterion, optimizer, num_epochs)
+except Exception as e:
+    print(f'Error during training: {e}')
+
+try:
+    test_model(model)
+except Exception as e:
+    print(f'Error during testing: {e}')
