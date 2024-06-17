@@ -3,15 +3,14 @@ import torch.nn as nn
 import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
-from torchvision.models import resnet18
-from torch.cuda.amp import autocast, GradScaler
+from torchvision import models
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Hyperparameters
 num_epochs = 25
-batch_size_per_gpu = 64  # Adjust batch size per GPU
+batch_size = 128
 learning_rate = 0.001
 
 # Data augmentation and normalization for training
@@ -30,27 +29,20 @@ transform_test = transforms.Compose([
 
 # Load CIFAR-10 dataset
 train_dataset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
-train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size_per_gpu * torch.cuda.device_count(), shuffle=True)
+train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 
 test_dataset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
-test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size_per_gpu * torch.cuda.device_count(), shuffle=False)
+test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
-# Load the ResNet-18 model
-model = resnet18()
-
-# Use DataParallel to use multiple GPUs
-if torch.cuda.device_count() > 1:
-    print(f'Using {torch.cuda.device_count()} GPUs!')
-    model = nn.DataParallel(model)
-
+# Load the pre-trained ResNet-101 model and modify the final layer
+model = models.resnet101(pretrained=True)
+num_ftrs = model.fc.in_features
+model.fc = nn.Linear(num_ftrs, 10)  # CIFAR-10 has 10 classes
 model = model.to(device)
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-
-# AMP scaler
-scaler = GradScaler()
 
 # Training function
 def train_model(model, criterion, optimizer, num_epochs):
@@ -60,25 +52,22 @@ def train_model(model, criterion, optimizer, num_epochs):
         for i, (images, labels) in enumerate(train_loader):
             images = images.to(device)
             labels = labels.to(device)
-
-            optimizer.zero_grad()
-
+            
             # Forward pass
-            with autocast():
-                outputs = model(images)
-                loss = criterion(outputs, labels)
-
-            # Backward pass and optimization
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
-
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+            
+            # Backward and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
             running_loss += loss.item()
             if (i + 1) % 100 == 0:
                 print(f'Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}')
         
         # Save the model checkpoint
-        torch.save(model.state_dict(), 'resnet18_cifar10.pth')
+        torch.save(model.state_dict(), 'resnet101_cifar10.pth')
 
 # Function to test the model
 def test_model(model):
