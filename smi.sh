@@ -22,5 +22,5 @@ read_gpu_model() {
 read_gpu_model
 
 # Run nvidia-smi continuously
-nvidia-smi -lms=1 --query-gpu=timestamp,utilization.gpu,power.draw --format=csv,noheader,nounits
+nvidia-smi -lms=1 --query-gpu=timestamp,utilization.gpu,power.draw,memory.used,memory.total --format=csv,noheader,nounits
 
