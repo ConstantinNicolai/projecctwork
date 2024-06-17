@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
-from torchvision.models import resnet101
+from torchvision.models import resnet18
 from torch.cuda.amp import autocast, GradScaler
 
 # Device configuration
