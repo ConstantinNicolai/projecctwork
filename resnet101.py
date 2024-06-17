@@ -11,7 +11,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Hyperparameters
 num_epochs = 25
-batch_size = 128
+batch_size_per_gpu = 64  # Adjust batch size per GPU
 learning_rate = 0.001
 
 # Data augmentation and normalization for training
@@ -30,12 +30,12 @@ transform_test = transforms.Compose([
 
 # Load CIFAR-10 dataset
 train_dataset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
-train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
+train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size_per_gpu * torch.cuda.device_count(), shuffle=True)
 
 test_dataset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
-test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
+test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size_per_gpu * torch.cuda.device_count(), shuffle=False)
 
-# Load the ResNet-101 model
+# Load the ResNet-18 model
 model = resnet18()
 
 # Use DataParallel to use multiple GPUs
@@ -78,7 +78,7 @@ def train_model(model, criterion, optimizer, num_epochs):
                 print(f'Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}')
         
         # Save the model checkpoint
-        torch.save(model.state_dict(), 'resnet101_cifar10.pth')
+        torch.save(model.state_dict(), 'resnet18_cifar10.pth')
 
 # Function to test the model
 def test_model(model):
