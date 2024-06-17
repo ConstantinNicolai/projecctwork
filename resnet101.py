@@ -36,7 +36,7 @@ test_dataset = torchvision.datasets.CIFAR10(root='./data', train=False, download
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
 # Load the ResNet-101 model
-model = resnet101()
+model = resnet18()
 
 # Use DataParallel to use multiple GPUs
 if torch.cuda.device_count() > 1:
