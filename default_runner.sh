@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --partition=brook
 #SBATCH --job-name=read_gpu_stats
-#SBATCH --outputresnet101_%j.out
+#SBATCH --output=resnet101_%j.out
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:2
