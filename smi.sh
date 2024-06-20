@@ -18,6 +18,14 @@ read_gpu_model() {
     echo "GPU Model: $gpu_model"
 }
 
+
+kill_background_jobs() {
+    for pid in $@; do
+        kill $pid
+    done
+}
+
+
 # Function to log GPU usage for each GPU on the node
 log_gpu_usage() {
   local gpu_ids=(${CUDA_VISIBLE_DEVICES//,/ })
@@ -27,11 +35,18 @@ log_gpu_usage() {
 }
 
 # Main script
-srun log_gpu_usage &  # Run the logging function in the background
+
+local gpu_ids=(${CUDA_VISIBLE_DEVICES//,/ })
+for gpu_id in "${gpu_ids[@]}"; do
+nvidia-smi -i ${gpu_id} -lms=1 --query-gpu=timestamp,utilization.gpu,power.draw,memory.used,memory.total --format=csv,noheader,nounits >> logs/gpu_usage_node${SLURM_NODEID}_gpu${gpu_id}.log &
+done
+
+
+# srun log_gpu_usage &  # Run the logging function in the background
 
 # Run the benchmark
 srun python3 resnet_multi.py >> logs/training_output_${SLURM_JOB_ID}.log
 
 #kill of background logging
-bg_pid=$(jobs -p)
-kill "$bg_pid"
+bg_pids=$(jobs -p)
+kill_background_jobs $bg_pids
