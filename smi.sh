@@ -27,7 +27,6 @@ log_gpu_usage() {
 }
 
 # Main script
-srun -e error/${SLURM_JOB_ID}.txt -o output/${SLURM_JOB_ID}.txt read_gpu_model
 log_gpu_usage &  # Run the logging function in the background
 
 # Run the benchmark
