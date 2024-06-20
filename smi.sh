@@ -4,7 +4,7 @@
 #SBATCH --output=rolling_output_nojobnumber.out
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:4
 
 # Check if Nvidia SMI is installed
 if ! command -v nvidia-smi &> /dev/null; then
