@@ -26,15 +26,17 @@ log_gpu_usage() {
   done
 }
 
+benchmark() {
+    python3 resnet_multi.py >> logs/training_output_${SLURM_JOB_ID}.log
+}
+
 # Main script
-# read_gpu_model
-# log_gpu_usage &  # Run the logging function in the background
+read_gpu_model
+srun log_gpu_usage &  # Run the logging function in the background
 
-# Run the benchmark in the background and detach it from the SLURM job control
-python3 resnet_multi.py >> logs/training_output_${SLURM_JOB_ID}.log
+# Run the benchmark
+srun benchmark 
 
-# Disown the background process to prevent SLURM from waiting for it
-disown -h %+
-
-# Now, exit the SLURM job immediately after finishing the benchmark
-exit 0
+#kill of background logging
+bg_pid=$(jobs -p)
+kill "$bg_pid"
