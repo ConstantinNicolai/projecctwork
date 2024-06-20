@@ -9,7 +9,7 @@ from torchvision import models
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Hyperparameters
-num_epochs = 5
+num_epochs = 1
 batch_size = 128
 learning_rate = 0.001
 
