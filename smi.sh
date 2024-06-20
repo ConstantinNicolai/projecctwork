@@ -28,7 +28,7 @@ log_gpu_usage() {
 
 # Main script
 srun -e error/${SLURM_JOB_ID}.txt -o output/${SLURM_JOB_ID}.txt read_gpu_model
-srun -e error/${SLURM_JOB_ID}.txt -o output/${SLURM_JOB_ID}.txt log_gpu_usage &  # Run the logging function in the background
+log_gpu_usage &  # Run the logging function in the background
 
 # Run the benchmark
 srun error/train${SLURM_JOB_ID}.txt -o output/train${SLURM_JOB_ID}.txt python3 resnet_multi.py >> logs/training_output_${SLURM_JOB_ID}.log
