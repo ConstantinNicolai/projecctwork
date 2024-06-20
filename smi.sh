@@ -4,7 +4,7 @@
 #SBATCH --output=rolling_output_nojobnumber.out
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --gres=gpu:4
+#SBATCH --gres=gpu:2
 
 # Check if Nvidia SMI is installed
 if ! command -v nvidia-smi &> /dev/null; then
@@ -27,8 +27,8 @@ log_gpu_usage() {
 }
 
 # Main script
-read_gpu_model
-log_gpu_usage &  # Run the logging function in the background
+# read_gpu_model
+# log_gpu_usage &  # Run the logging function in the background
 
 # Run the benchmark in the background and detach it from the SLURM job control
 python3 resnet_multi.py >> logs/training_output_${SLURM_JOB_ID}.log
