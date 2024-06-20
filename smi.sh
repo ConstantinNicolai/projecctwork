@@ -27,10 +27,10 @@ log_gpu_usage() {
 }
 
 # Main script
-log_gpu_usage &  # Run the logging function in the background
+srun log_gpu_usage &  # Run the logging function in the background
 
 # Run the benchmark
-srun error/train.txt -o output/train.txt python3 resnet_multi.py >> logs/training_output_${SLURM_JOB_ID}.log
+srun python3 resnet_multi.py >> logs/training_output_${SLURM_JOB_ID}.log
 
 #kill of background logging
 bg_pid=$(jobs -p)
