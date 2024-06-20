@@ -18,7 +18,6 @@ read_gpu_model() {
     echo "GPU Model: $gpu_model"
 }
 
-
 # Function to log GPU usage for each GPU on the node
 log_gpu_usage() {
   local gpu_ids=(${CUDA_VISIBLE_DEVICES//,/ })
@@ -29,26 +28,13 @@ log_gpu_usage() {
 
 # Main script
 read_gpu_model
-log_gpu_usage
+log_gpu_usage &  # Run the logging function in the background
 
-python3 resnet_multi.py
+# Run the benchmark in the background and detach it from the SLURM job control
+srun python3 resnet_multi.py >> logs/training_output_${SLURM_JOB_ID}.log
 
-# Run nvidia-smi continuously
-# nvidia-smi -lms=1 --query-gpu=timestamp,utilization.gpu,power.draw,memory.used,memory.total --format=csv,noheader,nounits
+# Disown the background process to prevent SLURM from waiting for it
+disown -h %+
 
-# local gpu_ids=(${CUDA_VISIBLE_DEVICES//,/ })
-# for gpu_id in "${gpu_ids[@]}"; do
-#     nvidia-smi -i ${gpu_id} -lms=1 --query-gpu=timestamp,utilization.gpu,power.draw,memory.used,memory.total --format=csv,noheader,nounits >> logs/gpu_usage_node${SLURM_NODEID}_gpu${gpu_id}.log
-# done
-
-
-# # Function to log GPU usage for each GPU on the node
-# log_gpu_usage() {
-#   local gpu_ids=(${CUDA_VISIBLE_DEVICES//,/ })
-#   for gpu_id in "${gpu_ids[@]}"; do
-#     while true; do
-#       nvidia-smi -i ${gpu_id} -lms=1 --query-gpu=timestamp,utilization.gpu,power.draw,memory.used,memory.total --format=csv,noheader,nounits >> logs/gpu_usage_node${SLURM_NODEID}_gpu${gpu_id}.log
-#       sleep 10
-#     done &
-#   done
-# }
+# Now, exit the SLURM job immediately after finishing the benchmark
+exit 0
