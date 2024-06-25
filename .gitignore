@@ -8,3 +8,12 @@ data
 hymenoptera_data*
 
 dataset.zip
+
+
+*epoch*
+
+*.out
+
+*.log
+
+*.pth
